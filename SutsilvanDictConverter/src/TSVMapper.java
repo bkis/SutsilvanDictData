@@ -28,10 +28,10 @@ public class TSVMapper {
 	private static final String PATTERN_SUFFIX = "-\\p{L}+|(?<=\\p{L})\\(\\p{L}+\\)";
 	
 	//BSP: (Zauberkünstler), (entstellen)
-	private static final String PATTERN_SEMANTIC_1 = "\\s\\([\\p{L}\\s]+\\)(?=(\\s|$))"; 
+	private static final String PATTERN_SEMANTIC_1 = "(?<=(\\s|\\.))(\\([\\p{L}\\s]+\\)(?=(\\s|$))|\\p{L}+(?=(\\)\\s|\\)$)))"; 
 	
 	//BSP: (zool.), (econ. polit.), .col
-	private static final String PATTERN_SEMANTIC_2 = "(\\s\\([\\p{L}\\s.]*\\.[\\p{L}\\s.]*\\)(?=(\\s|$))|\\.[a-zA-Z]+(?=\\s))"; 
+	private static final String PATTERN_SEMANTIC_2 = "\\([\\p{L}\\s.]*\\.[\\p{L}\\s.]*\\)(?=(\\s|$))"; 
 	
 	//BSP: Allianz f  alianza f, f.col
 	private static final String PATTERN_GENUS = "\\s(n\\.m|n\\.f|m/f|f/m|m\\(f\\)|m\\.pl|f\\.pl|m,f|f,m|f|m|n|pl)(?=(\\s|\\.))";
@@ -72,7 +72,7 @@ public class TSVMapper {
 		
 		for (String line : data){
 			
-			// correct errors in source data
+			// correct paranthesis errors in source data
 			if (line.matches(".*\\([^\\)]*$")) line = line.substring(0, line.length()-1) + ")";
 			line = cleanString(line);
 			
@@ -81,18 +81,14 @@ public class TSVMapper {
 			
 			// create EMPTY ENTRY
 			String[] entry = getEmptyEntry();
-			
-			
-			//DEBUG
-			//entry[getFieldIndex("Bearbeitungshinweis")] = currLine;
-			
+
 			
 			// EXCLUDE unwanted substrings
-			line = line.replaceAll(PATTERN_EXCLUDE, "");
+			currLine = currLine.replaceAll(PATTERN_EXCLUDE, "");
 			
 			
 			// extract and remove GENUS
-			finds = getFinds(line, PATTERN_GENUS);
+			finds = getFinds(currLine, PATTERN_GENUS);
 			if (finds.length == 2){
 				entry[getFieldIndex("DGenus")] = finds[0].replaceAll(" ", "");
 				entry[getFieldIndex("RGenus")] = finds[1].replaceAll(" ", "");
@@ -100,11 +96,11 @@ public class TSVMapper {
 				entry[getFieldIndex("DGenus")] = finds[0].replaceAll(" ", "");
 				entry[getFieldIndex("RGenus")] = finds[0].replaceAll(" ", "");
 			}
-			if (finds.length > 0) line = line.replaceAll(PATTERN_GENUS, "");
+			if (finds.length > 0) currLine = currLine.replaceAll(PATTERN_GENUS, "");
 			
 			
 			// extract and remove GRAMMATIK
-			finds = getFinds(line, PATTERN_GRAMMATIK);
+			finds = getFinds(currLine, PATTERN_GRAMMATIK);
 			if (finds.length == 2){
 				entry[getFieldIndex("DGrammatik")] = finds[0].replaceAll(" ", "");
 				entry[getFieldIndex("RGrammatik")] = finds[1].replaceAll(" ", "");
@@ -112,56 +108,57 @@ public class TSVMapper {
 				entry[getFieldIndex("DGrammatik")] = finds[0].replaceAll(" ", "");
 				entry[getFieldIndex("RGrammatik")] = finds[0].replaceAll(" ", "");
 			}
-			if (finds.length > 0) line = line.replaceAll(PATTERN_GRAMMATIK, "");
+			if (finds.length > 0) currLine = currLine.replaceAll(PATTERN_GRAMMATIK, "");
 			
 			
 			// extract and remove SEMANTIK 1
-			finds = getFinds(line, PATTERN_SEMANTIC_1);
+			finds = getFinds(currLine, PATTERN_SEMANTIC_1);
 			if (finds.length == 2){
 				entry[getFieldIndex("DSemantik")] = finds[0].replaceAll(PATTERN_PARANTHESIS, "");
 				entry[getFieldIndex("RSemantik")] = finds[1].replaceAll(PATTERN_PARANTHESIS, "");
 			} else if (finds.length == 1){
-				if (line.indexOf(finds[0]) > line.length()/2)
+				if (currLine.indexOf(finds[0]) > currLine.length()/2)
 					entry[getFieldIndex("RSemantik")] = finds[0].replaceAll(PATTERN_PARANTHESIS, "");
 				else
 					entry[getFieldIndex("DSemantik")] = finds[0].replaceAll(PATTERN_PARANTHESIS, "");
 			}
-			if (finds.length > 0) line = line.replaceAll(PATTERN_SEMANTIC_1, "");
+			if (finds.length > 0) currLine = currLine.replaceAll(PATTERN_SEMANTIC_1, "");
 			
 			
 			// extract and remove SEMANTIK 2 (SUBSEMANTIK)
-			finds = getFinds(line, PATTERN_SEMANTIC_2);
+			finds = getFinds(currLine, PATTERN_SEMANTIC_2);
 			if (finds.length == 2){
 				entry[getFieldIndex("DSubsemantik")] = finds[0].replaceAll(PATTERN_PARANTHESIS, "");
 				entry[getFieldIndex("RSubsemantik")] = finds[1].replaceAll(PATTERN_PARANTHESIS, "");
 			} else if (finds.length == 1){
-				if (line.indexOf(finds[0]) > line.length()/2)
+				if (currLine.indexOf(finds[0]) > currLine.length()/2)
 					entry[getFieldIndex("RSubsemantik")] = finds[0].replaceAll(PATTERN_PARANTHESIS, "");
 				else
 					entry[getFieldIndex("DSubsemantik")] = finds[0].replaceAll(PATTERN_PARANTHESIS, "");
 			}
-			if (finds.length > 0) line = line.replaceAll(PATTERN_SEMANTIC_2, "");
+			
+			if (finds.length > 0) currLine = currLine.replaceAll(PATTERN_SEMANTIC_2, "");
 
 			
 			// try separating languages
-			line = line.replaceAll("\\s+(?=$)", "");
-			finds = line.split("\\s{2,}");
+			currLine = currLine.replaceAll("\\s+(?=$)", "");
+			finds = currLine.split("\\s{2,}");
 			if (finds.length >= 2){
 				entry[getFieldIndex("DStichwort")] = finds[0];
 				entry[getFieldIndex("RStichwort")] = finds[1];
 			} else {
-				finds = line.split("\\s");
+				finds = currLine.split("\\s");
 				if (finds.length == 2){
 					entry[getFieldIndex("DStichwort")] = finds[0];
 					entry[getFieldIndex("RStichwort")] = finds[1];
 				} else if (finds.length > 2){
 					entry[getFieldIndex("DStichwort")] = finds[0];
-					entry[getFieldIndex("RStichwort")] = line.substring(finds[0].length(), line.length());
-					entry[getFieldIndex("Bearbeitungshinweis")] = currLine;
+					entry[getFieldIndex("RStichwort")] = currLine.substring(finds[0].length(), currLine.length());
+					entry[getFieldIndex("Bearbeitungshinweis")] = line;
 					warningsCount++;
 				} else {
 					entry[getFieldIndex("DStichwort")] = finds[0];
-					entry[getFieldIndex("Bearbeitungshinweis")] = currLine;
+					entry[getFieldIndex("Bearbeitungshinweis")] = line;
 					errorCount++;
 					continue; // exclude missing translations
 				}
@@ -169,10 +166,12 @@ public class TSVMapper {
 			}
 			
 			
-			//mark errors in combined semantics entries
-			if (currLine.matches(".*\\w+\\.\\w+\\).*")){
-				entry[getFieldIndex("Bearbeitungshinweis")] = currLine;
-				warningsCount++;
+			//mark entries with references ("cf.Something")
+			for (String s : entry){
+				if (s.contains("cf.")){
+					entry[getFieldIndex("Bearbeitungshinweis")] = currLine;
+					warningsCount++;
+				}
 			}
 			
 			
@@ -180,7 +179,7 @@ public class TSVMapper {
 			entries.add(entry);
 			
 			//DEBUG
-			printEntry(entry, line);
+			printEntry(entry, currLine);
 		}
 		
 		System.out.println("[INFO] Finished parsing with " + errorCount + " Errors and " + warningsCount + " Warnings.");
