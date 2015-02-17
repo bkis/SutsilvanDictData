@@ -151,11 +151,11 @@ public class TSVMapper {
 				} else if (finds.length > 2){
 					entry[getFieldIndex("DStichwort")] = finds[0];
 					entry[getFieldIndex("RStichwort")] = line.substring(finds[0].length(), line.length());
-					entry[getFieldIndex("Error")] = "WARNING! Original: " + currLine;
+					entry[getFieldIndex("Bearbeitungshinweis")] = "WARNING! Original: " + currLine;
 					warningsCount++;
 				} else {
 					entry[getFieldIndex("DStichwort")] = finds[0];
-					entry[getFieldIndex("Error")] = "ERROR! Original: " + currLine;
+					entry[getFieldIndex("Bearbeitungshinweis")] = "ERROR! Original: " + currLine;
 					errorCount++;
 					continue; // exclude missing translations
 				}
@@ -254,7 +254,6 @@ public class TSVMapper {
 		header.put("type", 16);
 		header.put("subtype", 17);
 		header.put("irregular", 18);
-		header.put("Error", 19);
 		return header;
 	}
 	
