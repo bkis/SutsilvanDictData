@@ -30,10 +30,10 @@ public class TSVMapper {
 	//BSP: (Zauberkünstler), (entstellen)
 	private static final String PATTERN_SEMANTIC_1 = "\\s\\([\\p{L}\\s]+\\)(?=(\\s|$))"; 
 	
-	//BSP: (zool.), (econ. polit.)
-	private static final String PATTERN_SEMANTIC_2 = "\\s\\([\\p{L}\\s.]*\\.[\\p{L}\\s.]*\\)(?=(\\s|$))"; 
+	//BSP: (zool.), (econ. polit.), .col
+	private static final String PATTERN_SEMANTIC_2 = "(\\s\\([\\p{L}\\s.]*\\.[\\p{L}\\s.]*\\)(?=(\\s|$))|\\.[a-zA-Z]+(?=\\s))"; 
 	
-	//BSP: Allianz f  alianza f   
+	//BSP: Allianz f  alianza f, f.col
 	private static final String PATTERN_GENUS = "\\s(f|m|n|m/f|f/m|m\\(f\\)|m.pl|f.pl|m,f|f,m)(?=(\\s|\\.))";
 
 	//BSP: anbei adv  aschunto   
