@@ -84,7 +84,7 @@ public class TSVMapper {
 			
 			
 			//DEBUG
-			entry[getFieldIndex("Bearbeitungshinweis")] = currLine;
+			//entry[getFieldIndex("Bearbeitungshinweis")] = currLine;
 			
 			
 			// EXCLUDE unwanted substrings
@@ -129,7 +129,7 @@ public class TSVMapper {
 			if (finds.length > 0) line = line.replaceAll(PATTERN_SEMANTIC_1, "");
 			
 			
-			// extract and remove SEMANTIK 1
+			// extract and remove SEMANTIK 2 (SUBSEMANTIK)
 			finds = getFinds(line, PATTERN_SEMANTIC_2);
 			if (finds.length == 2){
 				entry[getFieldIndex("DSubsemantik")] = finds[0].replaceAll(PATTERN_PARANTHESIS, "");
