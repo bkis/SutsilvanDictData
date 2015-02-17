@@ -34,7 +34,7 @@ public class TSVMapper {
 	private static final String PATTERN_SEMANTIC_2 = "(\\s\\([\\p{L}\\s.]*\\.[\\p{L}\\s.]*\\)(?=(\\s|$))|\\.[a-zA-Z]+(?=\\s))"; 
 	
 	//BSP: Allianz f  alianza f, f.col
-	private static final String PATTERN_GENUS = "\\s(f|m|n|m/f|f/m|m\\(f\\)|m.pl|f.pl|m,f|f,m)(?=(\\s|\\.))";
+	private static final String PATTERN_GENUS = "\\s(m/f|f/m|m\\(f\\)|m.pl|f.pl|m,f|f,m|f|m|n|pl)(?=(\\s|\\.))";
 
 	//BSP: anbei adv  aschunto   
 	private static final String PATTERN_GRAMMATIK = "\\s(tr|adj|adv|refl|int|tr/int|abs/tr|c/j|interj|\\(refl\\)\\sint|n\\.l|num|prep|cj|subst|adv/prep|pron|pron\\.adj|pron/adj|pron\\.indef|pron/indef|adj/cj|n\\.p)(?=\\s)";
@@ -169,7 +169,11 @@ public class TSVMapper {
 			}
 			
 			
-			//TODO ...
+			//mark errors in combined semantics entries
+			if (currLine.matches(".*\\w+\\.\\w+\\).*")){
+				entry[getFieldIndex("Bearbeitungshinweis")] = "WARNING! Original: " + currLine;
+				warningsCount++;
+			}
 			
 			
 			//add created entry to list
