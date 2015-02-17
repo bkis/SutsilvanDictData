@@ -34,7 +34,7 @@ public class TSVMapper {
 	private static final String PATTERN_SEMANTIC_2 = "\\s\\([\\p{L}\\s.]*\\.[\\p{L}\\s.]*\\)(?=(\\s|$))"; 
 	
 	//BSP: Allianz f  alianza f   
-	private static final String PATTERN_GENUS = "\\s(f|m|n|m/f|f/m|m\\(f\\)|m.pl|f.pl|m,f|f,m)(?=\\s)";
+	private static final String PATTERN_GENUS = "\\s(f|m|n|m/f|f/m|m\\(f\\)|m.pl|f.pl|m,f|f,m)(?=(\\s|\\.))";
 
 	//BSP: anbei adv  aschunto   
 	private static final String PATTERN_GRAMMATIK = "\\s(tr|adj|adv|refl|int|tr/int|abs/tr|c/j|interj|\\(refl\\)\\sint|n\\.l|num|prep|cj|subst|adv/prep|pron|pron\\.adj|pron/adj|pron\\.indef|pron/indef|adj/cj|n\\.p)(?=\\s)";
@@ -79,6 +79,10 @@ public class TSVMapper {
 			
 			// create EMPTY ENTRY
 			String[] entry = getEmptyEntry();
+			
+			
+			//DEBUG
+			entry[getFieldIndex("Bearbeitungshinweis")] = currLine;
 			
 			
 			// EXCLUDE unwanted substrings
