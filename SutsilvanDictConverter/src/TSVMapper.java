@@ -39,6 +39,8 @@ public class TSVMapper {
 	//BSP: anbei adv  aschunto   
 	private static final String PATTERN_GRAMMATIK = "\\s(tr|adj|adv|refl|int|tr/int|abs/tr|c/j|interj|\\(refl\\)\\sint|n\\.l|num|prep|cj|subst|adv/prep|pron|pron\\.adj|pron/adj|pron\\.indef|pron/indef|adj/cj|n\\.p)(?=\\s)";
 	
+	private static final String PATTERN_PARANTHESIS = "(\\(|\\))";
+	
 //	private static final String PATTERN_FIRST_TOKEN = "^[\\w\\s]+(?=\\s("
 //													+ PATTERN_GENUS + "|"
 //													+ PATTERN_SEMANTIC_1 + "|"
@@ -116,13 +118,13 @@ public class TSVMapper {
 			// extract and remove SEMANTIK 1
 			finds = getFinds(line, PATTERN_SEMANTIC_1);
 			if (finds.length == 2){
-				entry[getFieldIndex("DSemantik")] = finds[0];
-				entry[getFieldIndex("RSemantik")] = finds[1];
+				entry[getFieldIndex("DSemantik")] = finds[0].replaceAll(PATTERN_PARANTHESIS, "");
+				entry[getFieldIndex("RSemantik")] = finds[1].replaceAll(PATTERN_PARANTHESIS, "");
 			} else if (finds.length == 1){
 				if (line.indexOf(finds[0]) > line.length()/2)
-					entry[getFieldIndex("RSemantik")] = finds[0];
+					entry[getFieldIndex("RSemantik")] = finds[0].replaceAll(PATTERN_PARANTHESIS, "");
 				else
-					entry[getFieldIndex("DSemantik")] = finds[0];
+					entry[getFieldIndex("DSemantik")] = finds[0].replaceAll(PATTERN_PARANTHESIS, "");
 			}
 			if (finds.length > 0) line = line.replaceAll(PATTERN_SEMANTIC_1, "");
 			
@@ -130,13 +132,13 @@ public class TSVMapper {
 			// extract and remove SEMANTIK 1
 			finds = getFinds(line, PATTERN_SEMANTIC_2);
 			if (finds.length == 2){
-				entry[getFieldIndex("DSubsemantik")] = finds[0];
-				entry[getFieldIndex("RSubsemantik")] = finds[1];
+				entry[getFieldIndex("DSubsemantik")] = finds[0].replaceAll(PATTERN_PARANTHESIS, "");
+				entry[getFieldIndex("RSubsemantik")] = finds[1].replaceAll(PATTERN_PARANTHESIS, "");
 			} else if (finds.length == 1){
 				if (line.indexOf(finds[0]) > line.length()/2)
-					entry[getFieldIndex("RSubsemantik")] = finds[0];
+					entry[getFieldIndex("RSubsemantik")] = finds[0].replaceAll(PATTERN_PARANTHESIS, "");
 				else
-					entry[getFieldIndex("DSubsemantik")] = finds[0];
+					entry[getFieldIndex("DSubsemantik")] = finds[0].replaceAll(PATTERN_PARANTHESIS, "");
 			}
 			if (finds.length > 0) line = line.replaceAll(PATTERN_SEMANTIC_2, "");
 
