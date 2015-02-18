@@ -6,7 +6,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -164,7 +167,7 @@ public class TSVMapper {
 				}
 				
 			}
-			
+
 			
 			//mark entries with references ("cf.Something")
 			for (String s : entry){
@@ -174,7 +177,6 @@ public class TSVMapper {
 				}
 			}
 			
-			
 			//add created entry to list
 			entries.add(entry);
 			
@@ -182,11 +184,74 @@ public class TSVMapper {
 			printEntry(entry, currLine);
 		}
 		
+		entries = computeReferences(entries);
+		Collections.sort(entries, new EntryComparator());
+		
 		System.out.println("[INFO] Finished parsing with " + errorCount + " Errors and " + warningsCount + " Warnings.");
 		
 		return entries;
 	}
 	
+	
+	private class EntryComparator implements Comparator<String[]>{
+		@Override
+		public int compare(String[] o1, String[] o2) {
+			return o1[0].compareTo(o2[0]);
+		}
+	}
+	
+	
+	private List<String[]> computeReferences(List<String[]> entries) {
+		Iterator<String[]> iter = entries.listIterator();
+		System.out.println("# of entries before computing references: " + entries.size());
+		while (iter.hasNext()) {
+		    String[] e = iter.next();
+		    String[] target;
+		    boolean dRef = false;
+		    
+		    if ((dRef = e[getFieldIndex("DStichwort")].contains("cf.")) || e[getFieldIndex("RStichwort")].contains("cf.")){
+		    	String ref = e[getFieldIndex((dRef ? "DStichwort" : "RStichwort"))].replaceAll("(?<=cf\\.)\\s", "");
+		        target = getTarget(entries, ref.substring(ref.indexOf("cf.")+3), getFieldIndex((dRef ? "RStichwort" : "DStichwort")));
+		        if (target == null){
+		        	System.out.println("REMOVE");
+		        	iter.remove();
+		        	continue;
+		        }
+		        e = computeReference(e, target, getFieldIndex((dRef ? "DStichwort" : "RStichwort")));
+		        e[getFieldIndex("Bearbeitungshinweis")] = "";
+		    }
+		}
+		System.out.println("# of entries after computing references: " + entries.size());
+		return cleanUp(entries);
+	}
+	
+	
+	private String[] computeReference(String[] ref, String[] target, int targetIndex){
+		for (int i = 0; i < 5; i++) 
+			ref[targetIndex + i] = target[targetIndex + i];
+		return ref;
+	}
+	
+	
+	private String[] getTarget(List<String[]> list, String query, int targetIndex){
+		for (String[] i : list)
+			if (i[targetIndex].matches(query + ".*"))
+				return i;
+		return null;
+	}
+	
+	
+	private List<String[]> cleanUp(List<String[]> list){
+		Iterator<String[]> iter = list.listIterator();
+		while (iter.hasNext()){
+			String[] e = iter.next();
+			for (String s : e)
+				if (s.contains("cf."))
+					iter.remove();
+		}
+		return list;
+	}
+
 	
 	public void writeSV(List<String[]> svData,
 						String delimiter,
