@@ -67,12 +67,6 @@ public class TSVMapper {
 		
 		System.out.println("[INFO] read " + data.length + " lines from " + dataPath);
 		
-		// add header line
-		String[] headerLine = getEmptyEntry();
-		for (Entry<String, Integer> e : header.entrySet())
-			headerLine[e.getValue()] = e.getKey();
-		entries.add(headerLine);
-		
 		for (String line : data){
 			
 			// correct paranthesis errors in source data
@@ -186,6 +180,12 @@ public class TSVMapper {
 		
 		entries = computeReferences(entries);
 		Collections.sort(entries, new EntryComparator());
+		
+		// add header line
+		String[] headerLine = getEmptyEntry();
+		for (Entry<String, Integer> e : header.entrySet())
+			headerLine[e.getValue()] = e.getKey();
+		entries.add(0, headerLine);
 		
 		System.out.println("[INFO] Finished parsing with " + errorCount + " Errors and " + warningsCount + " Warnings.");
 		
